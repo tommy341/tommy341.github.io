@@ -482,6 +482,7 @@
 
             switch (command.toLowerCase().trim()) {
                 case 'help':
+                    addOutput('  help - show all available commands');
                     addOutput('  ls - list programs');
                     addOutput('  clear - clear terminal');
                     addOutput('  whoami - show current user');
@@ -575,6 +576,33 @@
             terminalContent.appendChild(promptLine);
             terminalContent.scrollTop = terminalContent.scrollHeight;
             updateCurrentCommand(); // This will add the cursor
+        }
+
+        function showStartupHelp() {
+            addOutput('  help - show all available commands');
+            addOutput('  ls - list programs');
+            addOutput('  clear - clear terminal');
+            addOutput('  whoami - show current user');
+            addOutput('  date - show current date');
+            addOutput('  echo <text> - echo text');
+            addOutput('  download <programname> - download a program');
+            addOutput('  exit - close terminal');
+        }
+
+        function clearStartupHelp() {
+            const helpLines = terminalContent.querySelectorAll('.output');
+            helpLines.forEach(line => {
+                if (line.textContent.includes('help - show all available commands') || 
+                    line.textContent.includes('ls - list programs') ||
+                    line.textContent.includes('clear - clear terminal') ||
+                    line.textContent.includes('whoami - show current user') ||
+                    line.textContent.includes('date - show current date') ||
+                    line.textContent.includes('echo <text> - echo text') ||
+                    line.textContent.includes('download <programname> - download a program') ||
+                    line.textContent.includes('exit - close terminal')) {
+                    line.remove();
+                }
+            });
         }
 
         function getAutocompleteSuggestion() {
@@ -715,6 +743,11 @@
                 cursorPosition = 0;
                 addNewPrompt();
             } else if (e.key.length === 1) {
+                // Clear startup help on first keystroke
+                if (currentCommand === '') {
+                    clearStartupHelp();
+                }
+                
                 // Insert character at cursor position
                 currentCommand = currentCommand.slice(0, cursorPosition) + e.key + currentCommand.slice(cursorPosition);
                 cursorPosition++;
@@ -751,6 +784,11 @@
             const terminal = document.getElementById('terminal');
             terminal.style.display = 'block';
             terminal.focus();
+            
+            // Clear terminal content and show startup help
+            terminalContent.innerHTML = '';
+            addNewPrompt();
+            showStartupHelp();
         }
 
         function openMail() {
