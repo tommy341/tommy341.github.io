@@ -3,40 +3,772 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to My GitHub Pages</title>
+    <title>Program Downloads Terminal</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            background: #000000;
+            color: #cccccc;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .terminal {
+            width: 50vw;
+            height: 60vh;
+            position: absolute;
+            top: 50px;
+            left: calc(50vw - 25vw);
+            min-width: 600px;
+            min-height: 500px;
+            outline: none;
+            display: none;
+        }
+
+        .desktop-icon {
+            position: absolute;
+            top: 35%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            user-select: none;
+            width: 120px;
+            height: 135px;
+        }
+
+        #terminal-icon {
+            left: 25%;
+        }
+
+        #mail-icon {
+            left: 34%;
+        }
+
+        #discord-icon {
+            left: 43%;
+        }
+
+        .desktop-icon:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .desktop-icon.selected {
+            background-color: rgba(0, 123, 255, 0.3);
+        }
+
+        .desktop-icon img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 8px;
+        }
+
+        .desktop-icon-text {
+            color: #ffffff;
+            font-size: 14px;
             text-align: center;
-            margin: 50px;
-            background-color: #f4f4f9;
+            white-space: nowrap;
         }
-        h1 {
-            color: #333;
-            font-size: 48px;
+
+        .terminal-header {
+            background: #1a1a1a;
+            padding: 10px 15px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: move;
+            user-select: none;
         }
-        p {
-            color: #666;
-            font-size: 18px;
+
+        .terminal-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px 20px;
-            font-size: 16px;
+
+        .terminal-header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .terminal-icon {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+
+        .close-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff5f57;
             border: none;
             cursor: pointer;
-            border-radius: 5px;
-            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background-color 0.2s ease;
         }
-        .button:hover {
-            background-color: #45a049;
+
+        .close-button:hover {
+            background: #ff3b30;
+        }
+
+        .close-button::before {
+            content: '×';
+            color: #000;
+            font-size: 10px;
+            font-weight: bold;
+            line-height: 1;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .close-button:hover::before {
+            opacity: 1;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot.red { background: #cc0000; }
+        .dot.yellow { background: #cc9900; }
+        .dot.green { background: #00cc00; }
+
+        .terminal-title {
+            color: #888888;
+            font-size: 12px;
+        }
+
+        .terminal-body {
+            background: #0a0a0a;
+            padding: 20px;
+            border-radius: 0 0 8px 8px;
+            height: calc(100% - 50px);
+            overflow-y: auto;
+        }
+
+        .prompt {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .command {
+            color: #cccccc;
+        }
+
+        .output {
+            color: #888888;
+            margin-left: 20px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 4px;
+            background: #cccccc;
+            animation: blink 1s infinite;
+            vertical-align: baseline;
+            margin-left: 0;
+            margin-right: -8px;
+            transform: translateY(6px);
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .help-text {
+            color: #666666;
+            margin: 20px 0;
+        }
+
+        .help-command {
+            color: #cc9900;
+            font-weight: 600;
+        }
+
+        .suggestion {
+            color: #666666;
+            opacity: 0.7;
+        }
+
+        /* Mail App Styles - Minimal Update Logs */
+        .mail-app {
+            width: 60vw;
+            height: 70vh;
+            position: absolute;
+            top: 15vh;
+            left: 20vw;
+            min-width: 600px;
+            min-height: 400px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            outline: none;
+        }
+
+        .mail-header {
+            background: #f8f8f8;
+            padding: 12px 20px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: move;
+            user-select: none;
+        }
+
+        .mail-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mail-header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .mail-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .mail-title {
+            color: #333333;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .mail-content {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .update-list {
+            padding: 20px;
+        }
+
+        .update-item {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .update-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .update-date {
+            color: #666;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .update-title {
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .update-content {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to My GitHub Pages Site!</h1>
-    <p>This site is hosted on GitHub Pages and powered by HTML, CSS, and GitHub's awesome infrastructure!</p>
-    <a href="https://github.com" class="button">Visit My GitHub</a>
+    <div class="desktop-icon" id="terminal-icon" onclick="selectIcon('terminal')" ondblclick="openTerminal()">
+        <img src="terminal.webp" alt="Terminal">
+        <div class="desktop-icon-text">terminal.exe</div>
+    </div>
+
+    <div class="desktop-icon" id="mail-icon" onclick="selectIcon('mail')" ondblclick="openMail()">
+        <img src="mail.png" alt="Mail">
+        <div class="desktop-icon-text">mail.exe</div>
+    </div>
+
+    <div class="desktop-icon" id="discord-icon" onclick="selectIcon('discord')" ondblclick="openDiscord()">
+        <img src="discord.png" alt="Discord">
+        <div class="desktop-icon-text">discord.exe</div>
+    </div>
+
+    <div class="terminal" id="terminal">
+        <div class="terminal-header">
+            <div class="terminal-header-left">
+                <img src="terminal.webp" alt="Terminal" class="terminal-icon">
+                <div class="terminal-title">terminal.exe</div>
+            </div>
+            <div class="terminal-header-right">
+                <button class="close-button" onclick="closeTerminal()"></button>
+            </div>
+        </div>
+        
+        <div class="terminal-body">
+            <div id="terminal-content">
+            </div>
+        </div>
+    </div>
+
+    <div class="mail-app" id="mail-app">
+        <div class="mail-header">
+            <div class="mail-header-left">
+                <img src="mail.png" alt="Mail" class="mail-icon">
+                <div class="mail-title">Inbox</div>
+            </div>
+            <div class="mail-header-right">
+                <button class="close-button" onclick="closeMail()"></button>
+            </div>
+        </div>
+        
+        <div class="mail-content">
+            <div class="update-list">
+                <div class="update-item">
+                    <div class="update-date">Upcoming</div>
+                    <div class="update-title">Akai4.3 Patcher Tool</div>
+                    <div class="update-content">
+                        Patches the software to remove date restrictions<br>
+                        <em>Release date: TBD (possibly next week)</em>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+
+        const terminal = document.querySelector('.terminal');
+        const terminalContent = document.getElementById('terminal-content');
+        let currentCommand = '';
+        let commandHistory = [];
+        let historyIndex = -1;
+        let cursorPosition = 0;
+        let availableCommands = ['download', 'ls', 'clear', 'whoami', 'date', 'echo', 'exit', 'help'];
+        let availablePrograms = ['gold-menu', 'gold-menu-patcher', 'akai4.3'];
+        let currentMatches = [];
+        let currentMatchIndex = 0;
+        let randomAddress = Math.floor(Math.random() * (199 - 103 + 1)) + 103;
+
+        // Dragging functionality
+        terminal.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+
+        // Mail app dragging functionality
+        const mailApp = document.getElementById('mail-app');
+        mailApp.addEventListener('mousedown', dragStart);
+
+        function dragStart(e) {
+            if (e.target.closest('.terminal-header') || e.target.closest('.mail-header')) {
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+
+                if (e.target === terminal || e.target.closest('.terminal-header') || 
+                    e.target === mailApp || e.target.closest('.mail-header')) {
+                    isDragging = true;
+                }
+            }
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+
+                xOffset = currentX;
+                yOffset = currentY;
+
+                // Check which window is being dragged
+                if (terminal.style.display !== 'none') {
+                    terminal.style.transform = `translate(${currentX}px, ${currentY}px)`;
+                }
+                if (mailApp.style.display !== 'none') {
+                    mailApp.style.transform = `translate(${currentX}px, ${currentY}px)`;
+                }
+            }
+        }
+
+        function dragEnd(e) {
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+        }
+
+        // Terminal functionality
+        function addLine(content, className = '') {
+            const line = document.createElement('div');
+            line.className = className;
+            line.textContent = content;
+            terminalContent.appendChild(line);
+            terminalContent.scrollTop = terminalContent.scrollHeight;
+        }
+
+        function addOutput(output, className = 'output') {
+            addLine(output, className);
+        }
+
+        function executeCommand(command) {
+            commandHistory.push(command);
+            historyIndex = commandHistory.length;
+
+            switch (command.toLowerCase().trim()) {
+                case 'help':
+                    addOutput('  ls - list programs');
+                    addOutput('  clear - clear terminal');
+                    addOutput('  whoami - show current user');
+                    addOutput('  date - show current date');
+                    addOutput('  echo <text> - echo text');
+                    addOutput('  download <programname> - download a program');
+                    addOutput('  exit - close terminal');
+                    break;
+                case 'ls':
+                    addOutput('  gold-menu.exe');
+                    addOutput('  gold-menu-patcher.exe');
+                    addOutput('  akai4.3.exe --@pendant');
+                    break;
+                case 'clear':
+                    terminalContent.innerHTML = '';
+                    addNewPrompt();
+                    return;
+                case 'whoami':
+                    addOutput('root');
+                    break;
+                case 'date':
+                    addOutput(new Date().toString());
+                    break;
+                case 'exit':
+                    window.close();
+                    return;
+                default:
+                    if (command.startsWith('download ')) {
+                        let programName = command.substring(9).trim();
+                        
+                        // Auto-add .exe if not present
+                        if (!programName.endsWith('.exe')) {
+                            programName = programName + '.exe';
+                        }
+                        
+                        if (programName === 'gold-menu.exe') {
+                            addOutput('[INFO] Starting download of gold-menu...');
+                            addOutput('[INFO] Connecting to download server...');
+                            addOutput('[SUCCESS] Download started!');
+                            
+                            // Actually trigger the download
+                            const link = document.createElement('a');
+                            link.href = 'https://raphaelcsc911.github.io/GoldMenuSetup.exe';
+                            link.download = 'gold-menu-setup.exe';
+                            link.style.display = 'none';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        } else if (programName === 'gold-menu-patcher.exe') {
+                            addOutput('[INFO] Starting download of gold-menu-patcher...');
+                            addOutput('[INFO] Connecting to GitHub repository...');
+                            addOutput('[SUCCESS] Download started!');
+                            
+                            // Actually trigger the download
+                            const link = document.createElement('a');
+                            link.href = 'https://github.com/tommy341/tommy341.github.io/raw/refs/heads/main/GoldMenu_Patcher.exe';
+                            link.download = 'gold-menu-patcher.exe';
+                            link.style.display = 'none';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        } else if (programName === 'akai4.3.exe') {
+                            addOutput('[INFO] Starting download of akai4.3...');
+                            addOutput('[INFO] Connecting to download server...');
+                            addOutput('[SUCCESS] Download started!');
+                            
+                            // Actually trigger the download
+                            const link = document.createElement('a');
+                            link.href = 'https://github.com/tommy341/tommy341.github.io/raw/refs/heads/main/Officer.zip';
+                            link.download = 'akai4.3.zip';
+                            link.style.display = 'none';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        } else {
+                            addOutput(`[ERROR] Program '${programName}' not found.`);
+                        }
+                    } else if (command.startsWith('echo ')) {
+                        addOutput(command.substring(5));
+                    } else {
+                        addOutput(`Command not found: ${command}`);
+                    }
+            }
+            addNewPrompt();
+        }
+
+        function addNewPrompt() {
+            const promptLine = document.createElement('div');
+            promptLine.className = 'prompt';
+            promptLine.innerHTML = `root@0x${randomAddress.toString(16)}:~$ <span class="command"></span>`;
+            terminalContent.appendChild(promptLine);
+            terminalContent.scrollTop = terminalContent.scrollHeight;
+            updateCurrentCommand(); // This will add the cursor
+        }
+
+        function getAutocompleteSuggestion() {
+            // Check if it's a download command with program name
+            if (currentCommand.startsWith('download ')) {
+                const programName = currentCommand.substring(9).trim();
+                // Only show suggestions if there's at least one character typed
+                if (programName.length > 0) {
+                    const matches = availablePrograms.filter(prog => prog.startsWith(programName)).sort((a, b) => a.length - b.length);
+                    if (matches.length > 0) {
+                        return `download ${matches[currentMatchIndex % matches.length]}`;
+                    }
+                }
+                return null;
+            } else {
+                // Regular command autocomplete
+                const matches = availableCommands.filter(cmd => cmd.startsWith(currentCommand));
+                return matches.length === 1 ? matches[0] : null;
+            }
+        }
+
+        function updateMatches() {
+            if (currentCommand.startsWith('download ')) {
+                const programName = currentCommand.substring(9).trim();
+                currentMatches = availablePrograms.filter(prog => prog.startsWith(programName)).sort((a, b) => a.length - b.length);
+                currentMatchIndex = 0;
+            } else {
+                currentMatches = availableCommands.filter(cmd => cmd.startsWith(currentCommand));
+                currentMatchIndex = 0;
+            }
+        }
+
+        function updateCurrentCommand() {
+            const lastPrompt = terminalContent.querySelector('.prompt:last-child');
+            if (lastPrompt) {
+                const commandSpan = lastPrompt.querySelector('.command');
+                if (commandSpan) {
+                    const suggestion = getAutocompleteSuggestion();
+                    const beforeCursor = currentCommand.slice(0, cursorPosition);
+                    const afterCursor = currentCommand.slice(cursorPosition);
+                    
+                    if (suggestion && suggestion !== currentCommand) {
+                        const suggestionText = suggestion.substring(currentCommand.length);
+                        commandSpan.innerHTML = beforeCursor + '<span class="cursor"></span>' + afterCursor + '<span class="suggestion">' + suggestionText + '</span>';
+                    } else {
+                        commandSpan.innerHTML = beforeCursor + '<span class="cursor"></span>' + afterCursor;
+                    }
+                }
+            }
+        }
+
+        // Keyboard input
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT') return;
+
+            if (e.key === 'Enter') {
+                if (currentCommand.trim()) {
+                    // Show the command that was entered
+                    const lastPrompt = terminalContent.querySelector('.prompt:last-child');
+                    if (lastPrompt) {
+                        const commandSpan = lastPrompt.querySelector('.command');
+                        if (commandSpan) {
+                            commandSpan.textContent = currentCommand;
+                        }
+                        // Remove the cursor from this line
+                        const cursor = lastPrompt.querySelector('.cursor');
+                        if (cursor) {
+                            cursor.remove();
+                        }
+                    }
+                    
+                    executeCommand(currentCommand);
+                    currentCommand = '';
+                    cursorPosition = 0;
+                    updateCurrentCommand(); // Clear the current line
+                }
+            } else if (e.key === 'Backspace') {
+                if (cursorPosition > 0) {
+                    currentCommand = currentCommand.slice(0, cursorPosition - 1) + currentCommand.slice(cursorPosition);
+                    cursorPosition--;
+                    currentMatchIndex = 0; // Reset match index when deleting
+                    updateCurrentCommand();
+                }
+            } else if (e.key === 'ArrowLeft') {
+                if (cursorPosition > 0) {
+                    cursorPosition--;
+                    updateCurrentCommand();
+                }
+            } else if (e.key === 'ArrowRight') {
+                if (cursorPosition < currentCommand.length) {
+                    cursorPosition++;
+                    updateCurrentCommand();
+                }
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                updateMatches();
+                
+                if (currentCommand.startsWith('download ')) {
+                    const programName = currentCommand.substring(9).trim();
+                    // Only cycle if there's at least one character typed
+                    if (programName.length > 0) {
+                        const matches = availablePrograms.filter(prog => prog.startsWith(programName)).sort((a, b) => a.length - b.length);
+                        
+                        if (matches.length > 0) {
+                            // Find matches that are longer than current program name
+                            const longerMatches = matches.filter(prog => prog.length > programName.length);
+                            
+                            if (longerMatches.length > 0) {
+                                // Cycle through longer matches only
+                                const nextMatch = longerMatches[currentMatchIndex % longerMatches.length];
+                                currentCommand = `download ${nextMatch}`;
+                                cursorPosition = currentCommand.length;
+                                currentMatchIndex++;
+                                updateCurrentCommand();
+                            }
+                        }
+                    }
+                } else {
+                    // Regular command autocomplete
+                    const suggestion = getAutocompleteSuggestion();
+                    if (suggestion) {
+                        currentCommand = suggestion;
+                        cursorPosition = currentCommand.length;
+                        updateCurrentCommand();
+                    }
+                }
+            } else if (e.ctrlKey && e.key === 'c') {
+                e.preventDefault();
+                // Show ^C and create new line
+                const lastPrompt = terminalContent.querySelector('.prompt:last-child');
+                if (lastPrompt) {
+                    const commandSpan = lastPrompt.querySelector('.command');
+                    if (commandSpan) {
+                        commandSpan.textContent = currentCommand + '^C';
+                    }
+                }
+                currentCommand = '';
+                cursorPosition = 0;
+                addNewPrompt();
+            } else if (e.key.length === 1) {
+                // Insert character at cursor position
+                currentCommand = currentCommand.slice(0, cursorPosition) + e.key + currentCommand.slice(cursorPosition);
+                cursorPosition++;
+                currentMatchIndex = 0; // Reset match index when typing
+                updateCurrentCommand();
+            }
+        });
+
+        // Focus terminal on click
+        terminal.addEventListener('click', function() {
+            terminal.focus();
+        });
+
+        // Make terminal focusable
+        terminal.setAttribute('tabindex', '0');
+        terminal.focus();
+
+        // Make mail app focusable
+        mailApp.setAttribute('tabindex', '0');
+
+        // Desktop icon functions
+        function selectIcon(iconType) {
+            // Remove selection from all icons
+            document.querySelectorAll('.desktop-icon').forEach(icon => {
+                icon.classList.remove('selected');
+            });
+            
+            // Add selection to clicked icon
+            const icon = document.getElementById(iconType + '-icon');
+            icon.classList.add('selected');
+        }
+
+        function openTerminal() {
+            const terminal = document.getElementById('terminal');
+            terminal.style.display = 'block';
+            terminal.focus();
+        }
+
+        function openMail() {
+            const mailApp = document.getElementById('mail-app');
+            mailApp.style.display = 'flex';
+            mailApp.focus();
+        }
+
+        function closeMail() {
+            const mailApp = document.getElementById('mail-app');
+            mailApp.style.display = 'none';
+        }
+
+        function openDiscord() {
+            window.open('https://discord.gg/RzGnytNDRR', '_blank');
+        }
+
+        // Close terminal function
+        function closeTerminal() {
+            const terminal = document.getElementById('terminal');
+            terminal.style.display = 'none';
+        }
+
+        // Click outside to deselect icons
+        document.addEventListener('click', function(e) {
+            const terminalIcon = document.getElementById('terminal-icon');
+            const mailIcon = document.getElementById('mail-icon');
+            const discordIcon = document.getElementById('discord-icon');
+            const terminal = document.getElementById('terminal');
+            
+            if (!terminalIcon.contains(e.target) && !mailIcon.contains(e.target) && !discordIcon.contains(e.target) && !terminal.contains(e.target)) {
+                terminalIcon.classList.remove('selected');
+                mailIcon.classList.remove('selected');
+                discordIcon.classList.remove('selected');
+            }
+        });
+
+        // Initialize
+        addNewPrompt();
+    </script>
 </body>
 </html>
