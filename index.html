@@ -506,7 +506,7 @@
                     addOutput(new Date().toString());
                     break;
                 case 'exit':
-                    window.close();
+                    closeTerminal();
                     return;
                 default:
                     if (command.startsWith('download ')) {
