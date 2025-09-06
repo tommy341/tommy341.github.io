@@ -89,6 +89,10 @@
             left: 52%;
         }
 
+        #deepwoken-icon {
+            left: 61%;
+        }
+
         .desktop-icon:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
@@ -685,6 +689,90 @@
             color: #666;
         }
 
+        /* Deepwoken Updates App Styles - Copy of Text Editor */
+        .deepwoken-updates-app {
+            width: 60vw;
+            height: 70vh;
+            position: absolute;
+            top: 15vh;
+            left: 20vw;
+            background: #1e1e1e;
+            border: 2px solid #333;
+            border-radius: 8px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            outline: none;
+        }
+
+        .deepwoken-header {
+            background: #2d2d2d;
+            padding: 8px 15px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: move;
+            user-select: none;
+        }
+
+        .deepwoken-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .deepwoken-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .deepwoken-title {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .deepwoken-content {
+            flex: 1;
+            padding: 20px;
+            background: #1e1e1e;
+            overflow: auto;
+            color: #cccccc;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.6;
+        }
+
+        .update-date {
+            color: #4CAF50;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+
+        .update-content {
+            white-space: pre-wrap;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #e6e6e6;
+        }
+
+        .loading {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+        }
+
+        .error {
+            color: #ff6b6b;
+            text-align: center;
+        }
+
         .status-slider {
             width: 100px;
             height: 4px;
@@ -724,6 +812,11 @@
     <div class="desktop-icon" id="finder-icon" onclick="selectIcon('finder')" ondblclick="openFinder()">
         <img src="Finder.png" alt="Finder">
         <div class="desktop-icon-text">Finder.app</div>
+    </div>
+
+    <div class="desktop-icon" id="deepwoken-icon" onclick="selectIcon('deepwoken')" ondblclick="openDeepwokenUpdates()">
+        <img src="Deepwoken.png" alt="Deepwoken Updates">
+        <div class="desktop-icon-text">Updates.app</div>
     </div>
 
     <div class="selection-box" id="selection-box"></div>
@@ -820,6 +913,22 @@
         </div>
     </div>
 
+    <div class="deepwoken-updates-app" id="deepwoken-updates-app">
+        <div class="deepwoken-header">
+            <div class="deepwoken-header-left">
+                <img src="Deepwoken.png" alt="Deepwoken" class="deepwoken-icon">
+                <div class="deepwoken-title">Deepwoken Updates</div>
+            </div>
+            <div class="deepwoken-header-right">
+                <button class="close-button" onclick="closeDeepwokenUpdates()"></button>
+            </div>
+        </div>
+        
+        <div class="deepwoken-content" id="deepwoken-content">
+            <div class="loading">Loading latest update...</div>
+        </div>
+    </div>
+
     <div class="text-editor" id="text-editor">
         <div class="text-editor-header">
             <div class="text-editor-header-left">
@@ -848,6 +957,7 @@
         let mailOffset = { x: 0, y: 0 };
         let finderOffset = { x: 0, y: 0 };
         let textEditorOffset = { x: 0, y: 0 };
+        let deepwokenOffset = { x: 0, y: 0 };
         
         // Z-index management for window layering
         let currentZIndex = 1000;
@@ -887,12 +997,17 @@
         const textEditor = document.getElementById('text-editor');
         textEditor.addEventListener('mousedown', (e) => dragStart(e, 'text-editor'));
 
+        // Deepwoken updates app dragging functionality
+        const deepwokenApp = document.getElementById('deepwoken-updates-app');
+        deepwokenApp.addEventListener('mousedown', (e) => dragStart(e, 'deepwoken'));
+
         function dragStart(e, windowType) {
-            if (e.target.closest('.terminal-header') || e.target.closest('.mail-header') || e.target.closest('.finder-header') || e.target.closest('.text-editor-header')) {
+            if (e.target.closest('.terminal-header') || e.target.closest('.mail-header') || e.target.closest('.finder-header') || e.target.closest('.text-editor-header') || e.target.closest('.deepwoken-header')) {
                 // Use the appropriate offset for the window being dragged
                 const offset = windowType === 'terminal' ? terminalOffset : 
                               windowType === 'mail' ? mailOffset : 
-                              windowType === 'finder' ? finderOffset : textEditorOffset;
+                              windowType === 'finder' ? finderOffset : 
+                              windowType === 'deepwoken' ? deepwokenOffset : textEditorOffset;
                 initialX = e.clientX - offset.x;
                 initialY = e.clientY - offset.y;
                 draggingWindow = windowType;
@@ -908,6 +1023,8 @@
                     finderApp.style.zIndex = currentZIndex;
                 } else if (windowType === 'text-editor') {
                     textEditor.style.zIndex = currentZIndex;
+                } else if (windowType === 'deepwoken') {
+                    deepwokenApp.style.zIndex = currentZIndex;
                 }
             }
         }
@@ -932,6 +1049,9 @@
                 } else if (draggingWindow === 'text-editor' && textEditor.style.display !== 'none') {
                     windowElement = textEditor;
                     windowRect = textEditor.getBoundingClientRect();
+                } else if (draggingWindow === 'deepwoken' && deepwokenApp.style.display !== 'none') {
+                    windowElement = deepwokenApp;
+                    windowRect = deepwokenApp.getBoundingClientRect();
                 } else {
                     return;
                 }
@@ -972,6 +1092,11 @@
                     textEditorOffset.y = currentY;
                     textEditor.style.transform = `translate(${currentX}px, ${currentY}px)`;
                 }
+                if (draggingWindow === 'deepwoken') {
+                    deepwokenOffset.x = currentX;
+                    deepwokenOffset.y = currentY;
+                    deepwokenApp.style.transform = `translate(${currentX}px, ${currentY}px)`;
+                }
             }
         }
 
@@ -989,6 +1114,9 @@
             } else if (draggingWindow === 'text-editor') {
                 initialX = textEditorOffset.x;
                 initialY = textEditorOffset.y;
+            } else if (draggingWindow === 'deepwoken') {
+                initialX = deepwokenOffset.x;
+                initialY = deepwokenOffset.y;
             }
             isDragging = false;
             draggingWindow = null;
@@ -1433,6 +1561,99 @@
             finderApp.style.zIndex = currentZIndex;
         }
 
+        function openDeepwokenUpdates() {
+            const deepwokenApp = document.getElementById('deepwoken-updates-app');
+            deepwokenApp.style.display = 'flex';
+            deepwokenApp.focus();
+            
+            // Bring deepwoken app to front
+            currentZIndex++;
+            deepwokenApp.style.zIndex = currentZIndex;
+            
+            // Load the latest update
+            loadLatestUpdate();
+        }
+
+        function closeDeepwokenUpdates() {
+            const deepwokenApp = document.getElementById('deepwoken-updates-app');
+            deepwokenApp.style.display = 'none';
+        }
+
+        function loadLatestUpdate() {
+            const contentDiv = document.getElementById('deepwoken-content');
+            contentDiv.innerHTML = '<div class="loading">Loading latest update...</div>';
+            
+            const url = "https://deepwoken.fandom.com/wiki/Version_History/2025";
+            const proxy = "https://api.allorigins.win/raw?url=";
+
+            fetch(proxy + encodeURIComponent(url))
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, "text/html");
+
+                    // Find h2 elements that contain dates
+                    const h2Elements = doc.querySelectorAll('h2');
+                    let latestDate = null;
+                    let latestContent = null;
+
+                    for (const h2 of h2Elements) {
+                        const bElement = h2.querySelector('b');
+                        if (bElement) {
+                            const dateText = bElement.textContent.trim();
+                            
+                            // Check if this is a date like "August 18th, 2025"
+                            if (/^[A-Za-z]+ \d{1,2}(st|nd|rd|th)?, \d{4}$/.test(dateText)) {
+                                latestDate = dateText;
+                                
+                                // Find the next sibling div with mw-collapsible class
+                                let nextSibling = h2.nextElementSibling;
+                                while (nextSibling) {
+                                    if (nextSibling.classList.contains('mw-collapsible')) {
+                                        // Get the content and remove HTML tags
+                                        latestContent = nextSibling.textContent.trim();
+                                        break;
+                                    }
+                                    nextSibling = nextSibling.nextElementSibling;
+                                }
+                                break; // Stop after finding the first (latest) date
+                            }
+                        }
+                    }
+
+                    if (latestDate && latestContent) {
+                        // Replace emojis with dots, handling cases where dot already exists
+                        let formattedContent = latestContent;
+                        
+                        // First pass: handle emojis followed by dots (exclude numbers 0-9)
+                        formattedContent = formattedContent.replace(/(?![0-9])\p{Emoji}\s*\./gu, '.');
+                        
+                        // Second pass: replace remaining emojis with dots (exclude numbers 0-9)
+                        formattedContent = formattedContent.replace(/(?![0-9])\p{Emoji}/gu, '.');
+                        
+                        // Apply other formatting
+                        formattedContent = formattedContent
+                            .replace(/\n\n/g, '\n\n') // Preserve double line breaks
+                            .replace(/\n/g, '\n') // Keep single line breaks
+                            .replace(/\s+/g, ' ') // Normalize whitespace
+                            .replace(/([.!?])\s*([A-Z])/g, '$1\n\n$2') // Add line breaks before new sentences
+                            .replace(/\b(Content & Systems|Merges & Removals|Balancing|Bugfixes & Optimization|Hotfixes)\b/g, '\n\n=== $1 ===\n')
+                            .trim();
+                        
+                        contentDiv.innerHTML = `
+                            <div class="update-date">${latestDate}</div>
+                            <div class="update-content">${formattedContent}</div>
+                        `;
+                    } else {
+                        contentDiv.innerHTML = '<div class="error">Failed to load update information</div>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading update:', err);
+                    contentDiv.innerHTML = '<div class="error">Error loading update information</div>';
+                });
+        }
+
         function closeFinder() {
             const finderApp = document.getElementById('finder-app');
             finderApp.style.display = 'none';
@@ -1727,16 +1948,19 @@
             const mailIcon = document.getElementById('mail-icon');
             const discordIcon = document.getElementById('discord-icon');
             const finderIcon = document.getElementById('finder-icon');
+            const deepwokenIcon = document.getElementById('deepwoken-icon');
             const terminal = document.getElementById('terminal');
             const mailApp = document.getElementById('mail-app');
             const finderApp = document.getElementById('finder-app');
+            const deepwokenApp = document.getElementById('deepwoken-updates-app');
             
-            if (!terminalIcon.contains(e.target) && !mailIcon.contains(e.target) && !discordIcon.contains(e.target) && !finderIcon.contains(e.target) && !terminal.contains(e.target) && !mailApp.contains(e.target) && !finderApp.contains(e.target)) {
+            if (!terminalIcon.contains(e.target) && !mailIcon.contains(e.target) && !discordIcon.contains(e.target) && !finderIcon.contains(e.target) && !deepwokenIcon.contains(e.target) && !terminal.contains(e.target) && !mailApp.contains(e.target) && !finderApp.contains(e.target) && !deepwokenApp.contains(e.target)) {
                 // Clear all selections
                 terminalIcon.classList.remove('selected', 'selected-multiple');
                 mailIcon.classList.remove('selected', 'selected-multiple');
                 discordIcon.classList.remove('selected', 'selected-multiple');
                 finderIcon.classList.remove('selected', 'selected-multiple');
+                deepwokenIcon.classList.remove('selected', 'selected-multiple');
                 selectedIcons.clear();
             }
         });
