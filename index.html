@@ -564,10 +564,10 @@
                 case 'ls':
                     addOutput('  gold-menu.exe');
                     addOutput('  gold-menu-patcher.exe');
-                    addOutput('  gold-menu-decompiled.py --v1.1');
+                    addOutput('  gold-menu-decompiled.zip --v1.1');
                     addOutput('  akai4.3.exe --official, leaker: @pendant');
-                    addOutput('  akai4.3-patched.exe --bypass checks');
-                    addOutput('  akai4.3-decompiled.ahk');
+                    addOutput('  akai4.3-patched.zip --bypass checks');
+                    addOutput('  akai4.3-decompiled.zip');
                     break;
                 case 'clear':
                     terminalContent.innerHTML = '';
@@ -587,12 +587,12 @@
                         let programName = command.substring(9).trim();
                         
                         // Auto-add extension if not present
-                        if (!programName.endsWith('.exe') && !programName.endsWith('.py') && !programName.endsWith('.ahk')) {
-                            // Check if it's a Python file by name
+                        if (!programName.endsWith('.exe') && !programName.endsWith('.zip')) {
+                            // Check if it's a zip file by name
                             if (programName === 'gold-menu-decompiled') {
-                                programName = programName + '.py';
+                                programName = programName + '.zip';
                             } else if (programName === 'akai4.3-decompiled') {
-                                programName = programName + '.ahk';
+                                programName = programName + '.zip';
                             } else {
                                 programName = programName + '.exe';
                             }
@@ -650,8 +650,8 @@
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
-                        } else if (programName === 'gold-menu-decompiled.py') {
-                            addOutput('[INFO] Starting download of gold-menu-decompiled.py...');
+                        } else if (programName === 'gold-menu-decompiled.zip') {
+                            addOutput('[INFO] Starting download of gold-menu-decompiled.zip...');
                             addOutput('[INFO] Connecting to GitHub repository...');
                             addOutput('[SUCCESS] Download started!');
                             
@@ -663,8 +663,8 @@
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
-                        } else if (programName === 'akai4.3-decompiled.ahk') {
-                            addOutput('[INFO] Starting download of akai4.3-decompiled.ahk...');
+                        } else if (programName === 'akai4.3-decompiled.zip') {
+                            addOutput('[INFO] Starting download of akai4.3-decompiled.zip...');
                             addOutput('[INFO] Connecting to GitHub repository...');
                             addOutput('[SUCCESS] Download started!');
                             
