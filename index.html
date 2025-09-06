@@ -85,6 +85,10 @@
             left: 43%;
         }
 
+        #finder-icon {
+            left: 52%;
+        }
+
         .desktop-icon:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
@@ -340,15 +344,364 @@
         /* Desktop selection box */
         .selection-box {
             position: absolute;
-            border: 2px dashed #007AFF;
-            background: rgba(0, 122, 255, 0.1);
+            border: 2px solid #007AFF;
+            background: rgba(0, 122, 255, 0.2);
             pointer-events: none;
-            z-index: 1000;
+            z-index: 10000;
             display: none;
         }
 
         .desktop-icon.selected-multiple {
             background-color: rgba(0, 123, 255, 0.5);
+        }
+
+        /* Disable text selection during dragging */
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Finder App Styles */
+        .finder-app {
+            width: 70vw;
+            height: 80vh;
+            position: absolute;
+            top: 10vh;
+            left: 15vw;
+            min-width: 800px;
+            min-height: 600px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            outline: none;
+        }
+
+        .finder-header {
+            background: #e8e8e8;
+            padding: 8px 15px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #d0d0d0;
+            cursor: move;
+            user-select: none;
+        }
+
+        .finder-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .finder-nav-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .nav-button {
+            width: 30px;
+            height: 25px;
+            border: 1px solid #ccc;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #e0e0e0;
+            border-color: #999;
+        }
+
+        .nav-button:disabled {
+            background: #f5f5f5;
+            color: #ccc;
+            cursor: not-allowed;
+            border-color: #e0e0e0;
+        }
+
+        .finder-traffic-lights {
+            display: flex;
+            gap: 6px;
+        }
+
+        .traffic-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .traffic-light.red { background: #ff5f57; }
+        .traffic-light.yellow { background: #ffbd2e; }
+        .traffic-light.green { background: #28ca42; }
+
+        .finder-title {
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .finder-toolbar {
+            background: #f0f0f0;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #d0d0d0;
+        }
+
+        .finder-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-arrow {
+            width: 20px;
+            height: 20px;
+            background: #d0d0d0;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .nav-arrow:hover {
+            background: #c0c0c0;
+        }
+
+        .finder-path {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #d0d0d0;
+        }
+
+        .path-icon {
+            font-size: 12px;
+        }
+
+        .path-text {
+            font-size: 12px;
+            color: #333;
+        }
+
+        .finder-toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-icon {
+            width: 24px;
+            height: 24px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .toolbar-icon:hover {
+            background: #d0d0d0;
+        }
+
+        .finder-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .finder-main {
+            flex: 1;
+            padding: 20px;
+            background: white;
+        }
+
+        .finder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 20px;
+        }
+
+        .finder-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .finder-item:hover {
+            background: #f0f0f0;
+        }
+
+        .finder-item.selected {
+            background-color: rgba(0, 123, 255, 0.3);
+        }
+
+        .finder-item.selected-multiple {
+            background-color: rgba(0, 123, 255, 0.5);
+        }
+
+        .finder-folder-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 8px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .finder-file-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 8px;
+            font-size: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Context Menu Styles */
+        .context-menu {
+            background: white;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 4px 0;
+            min-width: 120px;
+        }
+
+        .context-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #333;
+            transition: background-color 0.2s;
+        }
+
+        .context-item:hover {
+            background: #f0f0f0;
+        }
+
+        /* Text Editor Styles */
+        .text-editor {
+            width: 60vw;
+            height: 70vh;
+            position: absolute;
+            top: 15vh;
+            left: 20vw;
+            min-width: 600px;
+            min-height: 400px;
+            background: #1e1e1e;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            outline: none;
+        }
+
+        .text-editor-header {
+            background: #2d2d2d;
+            padding: 8px 15px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #404040;
+            cursor: move;
+            user-select: none;
+        }
+
+        .text-editor-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .text-editor-title {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .text-editor-content {
+            flex: 1;
+            padding: 20px;
+            background: #1e1e1e;
+            overflow: auto;
+        }
+
+        #file-content {
+            color: #d4d4d4;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .finder-label {
+            font-size: 12px;
+            color: #333;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .finder-status {
+            background: #f0f0f0;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #d0d0d0;
+        }
+
+        .status-text {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .status-slider {
+            width: 100px;
+            height: 4px;
+            background: #d0d0d0;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .slider-handle {
+            width: 12px;
+            height: 12px;
+            background: #666;
+            border-radius: 50%;
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%);
         }
     </style>
 </head>
@@ -366,6 +719,11 @@
     <div class="desktop-icon" id="discord-icon" onclick="selectIcon('discord')" ondblclick="openDiscord()">
         <img src="discord.png" alt="Discord">
         <div class="desktop-icon-text">discord.exe</div>
+    </div>
+
+    <div class="desktop-icon" id="finder-icon" onclick="selectIcon('finder')" ondblclick="openFinder()">
+        <img src="Finder.png" alt="Finder">
+        <div class="desktop-icon-text">Finder.app</div>
     </div>
 
     <div class="selection-box" id="selection-box"></div>
@@ -428,6 +786,55 @@
         </div>
     </div>
 
+    <div class="finder-app" id="finder-app">
+        <div class="finder-header">
+            <div class="finder-header-left">
+                <div class="finder-nav-buttons">
+                    <button class="nav-button" id="back-button" onclick="goBack()" disabled>←</button>
+                    <button class="nav-button" id="forward-button" onclick="goForward()" disabled>→</button>
+                </div>
+                <div class="finder-title">binwoken.sh</div>
+            </div>
+            <div class="finder-header-right">
+                <button class="close-button" onclick="closeFinder()"></button>
+            </div>
+        </div>
+        
+        <div class="finder-content">
+            <div class="finder-main">
+                <div class="finder-grid">
+                    <div class="finder-item" onclick="selectFinderItem('mervonz')" ondblclick="openFinderFolder('mervonz')">
+                        <img src="Folder.webp" alt="Folder" class="finder-folder-icon">
+                        <div class="finder-label">mervonz</div>
+                    </div>
+                    <div class="finder-item" onclick="selectFinderItem('vo1d')" ondblclick="openFinderFolder('vo1d')">
+                        <img src="Folder.webp" alt="Folder" class="finder-folder-icon">
+                        <div class="finder-label">vo1d</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="finder-status">
+            <div class="status-text">2 items, 90.02 GB available</div>
+        </div>
+    </div>
+
+    <div class="text-editor" id="text-editor">
+        <div class="text-editor-header">
+            <div class="text-editor-header-left">
+                <div class="text-editor-title">ClientAppSettings.json</div>
+            </div>
+            <div class="text-editor-header-right">
+                <button class="close-button" onclick="closeTextEditor()"></button>
+            </div>
+        </div>
+        
+        <div class="text-editor-content">
+            <pre id="file-content">Loading file...</pre>
+        </div>
+    </div>
+
     <script>
         let isDragging = false;
         let currentX;
@@ -439,6 +846,8 @@
         // Separate offset tracking for each window
         let terminalOffset = { x: 0, y: 0 };
         let mailOffset = { x: 0, y: 0 };
+        let finderOffset = { x: 0, y: 0 };
+        let textEditorOffset = { x: 0, y: 0 };
         
         // Z-index management for window layering
         let currentZIndex = 1000;
@@ -470,10 +879,20 @@
         const mailApp = document.getElementById('mail-app');
         mailApp.addEventListener('mousedown', (e) => dragStart(e, 'mail'));
 
+        // Finder app dragging functionality
+        const finderApp = document.getElementById('finder-app');
+        finderApp.addEventListener('mousedown', (e) => dragStart(e, 'finder'));
+
+        // Text editor dragging functionality
+        const textEditor = document.getElementById('text-editor');
+        textEditor.addEventListener('mousedown', (e) => dragStart(e, 'text-editor'));
+
         function dragStart(e, windowType) {
-            if (e.target.closest('.terminal-header') || e.target.closest('.mail-header')) {
+            if (e.target.closest('.terminal-header') || e.target.closest('.mail-header') || e.target.closest('.finder-header') || e.target.closest('.text-editor-header')) {
                 // Use the appropriate offset for the window being dragged
-                const offset = windowType === 'terminal' ? terminalOffset : mailOffset;
+                const offset = windowType === 'terminal' ? terminalOffset : 
+                              windowType === 'mail' ? mailOffset : 
+                              windowType === 'finder' ? finderOffset : textEditorOffset;
                 initialX = e.clientX - offset.x;
                 initialY = e.clientY - offset.y;
                 draggingWindow = windowType;
@@ -485,6 +904,10 @@
                     terminal.style.zIndex = currentZIndex;
                 } else if (windowType === 'mail') {
                     mailApp.style.zIndex = currentZIndex;
+                } else if (windowType === 'finder') {
+                    finderApp.style.zIndex = currentZIndex;
+                } else if (windowType === 'text-editor') {
+                    textEditor.style.zIndex = currentZIndex;
                 }
             }
         }
@@ -503,6 +926,12 @@
                 } else if (draggingWindow === 'mail' && mailApp.style.display !== 'none') {
                     windowElement = mailApp;
                     windowRect = mailApp.getBoundingClientRect();
+                } else if (draggingWindow === 'finder' && finderApp.style.display !== 'none') {
+                    windowElement = finderApp;
+                    windowRect = finderApp.getBoundingClientRect();
+                } else if (draggingWindow === 'text-editor' && textEditor.style.display !== 'none') {
+                    windowElement = textEditor;
+                    windowRect = textEditor.getBoundingClientRect();
                 } else {
                     return;
                 }
@@ -533,6 +962,16 @@
                     mailOffset.y = currentY;
                     mailApp.style.transform = `translate(${currentX}px, ${currentY}px)`;
                 }
+                if (draggingWindow === 'finder') {
+                    finderOffset.x = currentX;
+                    finderOffset.y = currentY;
+                    finderApp.style.transform = `translate(${currentX}px, ${currentY}px)`;
+                }
+                if (draggingWindow === 'text-editor') {
+                    textEditorOffset.x = currentX;
+                    textEditorOffset.y = currentY;
+                    textEditor.style.transform = `translate(${currentX}px, ${currentY}px)`;
+                }
             }
         }
 
@@ -544,6 +983,12 @@
             } else if (draggingWindow === 'mail') {
                 initialX = mailOffset.x;
                 initialY = mailOffset.y;
+            } else if (draggingWindow === 'finder') {
+                initialX = finderOffset.x;
+                initialY = finderOffset.y;
+            } else if (draggingWindow === 'text-editor') {
+                initialX = textEditorOffset.x;
+                initialY = textEditorOffset.y;
             }
             isDragging = false;
             draggingWindow = null;
@@ -913,6 +1358,12 @@
         // Make mail app focusable
         mailApp.setAttribute('tabindex', '0');
 
+        // Make finder app focusable
+        finderApp.setAttribute('tabindex', '0');
+
+        // Make text editor focusable
+        textEditor.setAttribute('tabindex', '0');
+
         // Desktop icon functions
         function selectIcon(iconType) {
             // If multiple icons are selected, don't change selection on single click
@@ -966,6 +1417,194 @@
             window.open('https://discord.gg/RzGnytNDRR', '_blank');
         }
 
+        function openFinder() {
+            const finderApp = document.getElementById('finder-app');
+            finderApp.style.display = 'flex';
+            finderApp.focus();
+            
+            // Reset to root view and update navigation
+            finderHistory = ['root'];
+            currentHistoryIndex = 0;
+            showFolderContents('root');
+            updateNavButtons();
+            
+            // Bring finder app to front
+            currentZIndex++;
+            finderApp.style.zIndex = currentZIndex;
+        }
+
+        function closeFinder() {
+            const finderApp = document.getElementById('finder-app');
+            finderApp.style.display = 'none';
+        }
+
+        // Finder folder selection and interaction
+        let selectedFinderItems = new Set();
+        
+        // Navigation history for back/forward buttons
+        let finderHistory = ['root'];
+        let currentHistoryIndex = 0;
+
+        function selectFinderItem(folderName) {
+            // Remove selection from all finder items
+            document.querySelectorAll('.finder-item').forEach(item => {
+                item.classList.remove('selected', 'selected-multiple');
+            });
+
+            // Add selection to clicked item
+            const clickedItem = event.currentTarget;
+            clickedItem.classList.add('selected');
+            selectedFinderItems.clear();
+            selectedFinderItems.add(folderName);
+        }
+
+        function openFinderFolder(folderName) {
+            // Add to history
+            finderHistory = finderHistory.slice(0, currentHistoryIndex + 1);
+            finderHistory.push(folderName);
+            currentHistoryIndex = finderHistory.length - 1;
+            
+            // Show folder contents
+            showFolderContents(folderName);
+            updateNavButtons();
+        }
+
+        function goBack() {
+            if (currentHistoryIndex > 0) {
+                currentHistoryIndex--;
+                const folderName = finderHistory[currentHistoryIndex];
+                showFolderContents(folderName);
+                updateNavButtons();
+            }
+        }
+
+        function goForward() {
+            if (currentHistoryIndex < finderHistory.length - 1) {
+                currentHistoryIndex++;
+                const folderName = finderHistory[currentHistoryIndex];
+                showFolderContents(folderName);
+                updateNavButtons();
+            }
+        }
+
+        function updateNavButtons() {
+            const backButton = document.getElementById('back-button');
+            const forwardButton = document.getElementById('forward-button');
+            
+            backButton.disabled = currentHistoryIndex <= 0;
+            forwardButton.disabled = currentHistoryIndex >= finderHistory.length - 1;
+        }
+
+        function showFolderContents(folderName) {
+            const finderGrid = document.querySelector('.finder-grid');
+            const finderTitle = document.querySelector('.finder-title');
+            
+            if (folderName === 'root') {
+                finderTitle.textContent = 'binwoken.sh';
+                finderGrid.innerHTML = `
+                    <div class="finder-item" onclick="selectFinderItem('mervonz')" ondblclick="openFinderFolder('mervonz')">
+                        <img src="Folder.webp" alt="Folder" class="finder-folder-icon">
+                        <div class="finder-label">mervonz</div>
+                    </div>
+                `;
+            } else if (folderName === 'mervonz') {
+                finderTitle.textContent = 'mervonz';
+                finderGrid.innerHTML = `
+                    <div class="finder-item" onclick="selectFinderItem('ClientAppSettings.json')" ondblclick="openFile('ClientAppSettings.json')" oncontextmenu="showContextMenu(event, 'ClientAppSettings.json')">
+                        <div class="finder-file-icon">📄</div>
+                        <div class="finder-label">ClientAppSettings.json</div>
+                    </div>
+                `;
+            }
+        }
+
+        function openFile(fileName) {
+            if (fileName === 'ClientAppSettings.json') {
+                openTextEditor(fileName);
+            }
+        }
+
+        function openTextEditor(fileName) {
+            const textEditor = document.getElementById('text-editor');
+            const title = document.querySelector('.text-editor-title');
+            const content = document.getElementById('file-content');
+            
+            title.textContent = fileName;
+            
+            // Load the actual file content
+            if (fileName === 'ClientAppSettings.json') {
+                fetch('ClientAppSettings.json')
+                    .then(response => response.text())
+                    .then(data => {
+                        content.innerHTML = '<span style="color: #666; font-style: italic;">credits: @reddice</span>\n\n' + data;
+                    })
+                    .catch(error => {
+                        content.textContent = 'Error loading file: ' + error.message;
+                    });
+            }
+            
+            textEditor.style.display = 'flex';
+            textEditor.focus();
+            
+            // Bring text editor to front
+            currentZIndex++;
+            textEditor.style.zIndex = currentZIndex;
+        }
+
+        function closeTextEditor() {
+            const textEditor = document.getElementById('text-editor');
+            textEditor.style.display = 'none';
+        }
+
+        function showContextMenu(event, fileName) {
+            event.preventDefault();
+            
+            // Remove any existing context menu
+            const existingMenu = document.querySelector('.context-menu');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+            
+            // Create context menu
+            const contextMenu = document.createElement('div');
+            contextMenu.className = 'context-menu';
+            contextMenu.style.position = 'fixed';
+            contextMenu.style.left = event.clientX + 'px';
+            contextMenu.style.top = event.clientY + 'px';
+            contextMenu.style.zIndex = '20000';
+            contextMenu.innerHTML = `
+                <div class="context-item" onclick="openFile('${fileName}'); hideContextMenu();">Open</div>
+                <div class="context-item" onclick="downloadFile('${fileName}'); hideContextMenu();">Download</div>
+            `;
+            
+            document.body.appendChild(contextMenu);
+            
+            // Hide context menu when clicking elsewhere
+            setTimeout(() => {
+                document.addEventListener('click', hideContextMenu, { once: true });
+            }, 0);
+        }
+
+        function hideContextMenu() {
+            const contextMenu = document.querySelector('.context-menu');
+            if (contextMenu) {
+                contextMenu.remove();
+            }
+        }
+
+        function downloadFile(fileName) {
+            if (fileName === 'ClientAppSettings.json') {
+                // Create and trigger download
+                const link = document.createElement('a');
+                link.href = 'ClientAppSettings.json';
+                link.download = 'ClientAppSettings.json';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
         // Close terminal function
         function closeTerminal() {
             const terminal = document.getElementById('terminal');
@@ -974,11 +1613,16 @@
 
         // Desktop selection functionality
         document.addEventListener('mousedown', function(e) {
-            // Only start selection if clicking on empty desktop area
-            if (e.target === document.body || e.target.classList.contains('selection-box')) {
+            // Only start selection if clicking on empty desktop area or finder main area
+            if (e.target === document.body || e.target.classList.contains('selection-box') || 
+                e.target.classList.contains('finder-main') || e.target.classList.contains('finder-grid')) {
+                e.preventDefault();
                 isSelecting = true;
                 selectionStartX = e.clientX;
                 selectionStartY = e.clientY;
+                
+                // Add no-select class to body to prevent text selection
+                document.body.classList.add('no-select');
                 
                 const selectionBox = document.getElementById('selection-box');
                 selectionBox.style.left = selectionStartX + 'px';
@@ -989,14 +1633,19 @@
                 
                 // Clear previous selections
                 selectedIcons.clear();
+                selectedFinderItems.clear();
                 document.querySelectorAll('.desktop-icon').forEach(icon => {
                     icon.classList.remove('selected', 'selected-multiple');
+                });
+                document.querySelectorAll('.finder-item').forEach(item => {
+                    item.classList.remove('selected', 'selected-multiple');
                 });
             }
         });
 
         document.addEventListener('mousemove', function(e) {
             if (isSelecting) {
+                e.preventDefault();
                 const selectionBox = document.getElementById('selection-box');
                 const currentX = e.clientX;
                 const currentY = e.clientY;
@@ -1032,14 +1681,41 @@
                         }
                     }
                 });
+
+                // Check which finder items are in selection
+                document.querySelectorAll('.finder-item').forEach(item => {
+                    const rect = item.getBoundingClientRect();
+                    const itemLeft = rect.left;
+                    const itemTop = rect.top;
+                    const itemRight = rect.right;
+                    const itemBottom = rect.bottom;
+                    
+                    if (left < itemRight && left + width > itemLeft && 
+                        top < itemBottom && top + height > itemTop) {
+                        if (!selectedFinderItems.has(item.querySelector('.finder-label').textContent)) {
+                            selectedFinderItems.add(item.querySelector('.finder-label').textContent);
+                            item.classList.add('selected-multiple');
+                        }
+                    } else {
+                        const itemName = item.querySelector('.finder-label').textContent;
+                        if (selectedFinderItems.has(itemName)) {
+                            selectedFinderItems.delete(itemName);
+                            item.classList.remove('selected-multiple');
+                        }
+                    }
+                });
             }
         });
 
         document.addEventListener('mouseup', function(e) {
             if (isSelecting) {
+                e.preventDefault();
                 isSelecting = false;
                 const selectionBox = document.getElementById('selection-box');
                 selectionBox.style.display = 'none';
+                
+                // Remove no-select class from body
+                document.body.classList.remove('no-select');
                 
                 // Don't auto-open selected icons - user needs to click/double-click them
             }
@@ -1050,14 +1726,17 @@
             const terminalIcon = document.getElementById('terminal-icon');
             const mailIcon = document.getElementById('mail-icon');
             const discordIcon = document.getElementById('discord-icon');
+            const finderIcon = document.getElementById('finder-icon');
             const terminal = document.getElementById('terminal');
             const mailApp = document.getElementById('mail-app');
+            const finderApp = document.getElementById('finder-app');
             
-            if (!terminalIcon.contains(e.target) && !mailIcon.contains(e.target) && !discordIcon.contains(e.target) && !terminal.contains(e.target) && !mailApp.contains(e.target)) {
+            if (!terminalIcon.contains(e.target) && !mailIcon.contains(e.target) && !discordIcon.contains(e.target) && !finderIcon.contains(e.target) && !terminal.contains(e.target) && !mailApp.contains(e.target) && !finderApp.contains(e.target)) {
                 // Clear all selections
                 terminalIcon.classList.remove('selected', 'selected-multiple');
                 mailIcon.classList.remove('selected', 'selected-multiple');
                 discordIcon.classList.remove('selected', 'selected-multiple');
+                finderIcon.classList.remove('selected', 'selected-multiple');
                 selectedIcons.clear();
             }
         });
