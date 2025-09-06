@@ -745,7 +745,7 @@
             line-height: 1.6;
         }
 
-        .update-date {
+        .deepwoken-update-date {
             color: #4CAF50;
             font-size: 16px;
             font-weight: bold;
@@ -755,12 +755,14 @@
             padding-bottom: 8px;
         }
 
-        .update-content {
+        .deepwoken-update-content {
             white-space: pre-wrap;
             font-size: 13px;
             line-height: 1.6;
             color: #e6e6e6;
         }
+
+
 
         .loading {
             text-align: center;
@@ -974,7 +976,7 @@
         let commandHistory = [];
         let historyIndex = -1;
         let cursorPosition = 0;
-        let availableCommands = ['download', 'ls', 'clear', 'whoami', 'date', 'echo', 'exit', 'help'];
+        let availableCommands = ['bin', 'bin download', 'ls', 'clear', 'whoami', 'date', 'echo', 'bin pull updates.app', 'exit', 'help'];
         let availablePrograms = ['gold-menu', 'gold-menu-patcher', 'akai4.3', 'akai4.3-patched', 'gold-menu-decompiled', 'akai4.3-decompiled', 'astral_client', 'asphyxia_macro'];
         let currentMatches = [];
         let currentMatchIndex = 0;
@@ -1147,7 +1149,8 @@
                     addOutput('  whoami - show current user');
                     addOutput('  date - show current date');
                     addOutput('  echo <text> - echo text');
-                    addOutput('  download <programname> - download a program');
+                    addOutput('  bin download <programname> - download a program');
+                    addOutput('  bin pull updates.app - show deepwoken update log');
                     addOutput('  exit - close terminal');
                     break;
                 case 'ls':
@@ -1164,7 +1167,19 @@
                     terminalContent.innerHTML = '';
                     commandHistory = []; // Reset command history so help shows again
                     // Don't add prompt here - let the Enter key handler do it
-                    return;
+                    return true;
+                case 'bin':
+                    addOutput('Available bin commands:');
+                    addOutput('  bin download <programname> - download a program');
+                    addOutput('  bin pull updates.app - show deepwoken update log');
+                    break;
+                case 'bin pull updates.app':
+                    addOutput('[INFO] Fetching latest Deepwoken updates...');
+                    addOutput('[INFO] Connecting to Deepwoken wiki...');
+                    
+                    // Call the same function as the Deepwoken updates app
+                    fetchDeepwokenUpdates();
+                    return false; // Don't add prompt here - the async function will handle it
                 case 'whoami':
                     addOutput('root');
                     break;
@@ -1175,8 +1190,8 @@
                     closeTerminal();
                     return;
                 default:
-                    if (command.startsWith('download ')) {
-                        let programName = command.substring(9).trim();
+                    if (command.startsWith('bin download ')) {
+                        let programName = command.substring(13).trim();
                         
                         // Auto-add extension if not present
                         if (!programName.endsWith('.exe') && !programName.endsWith('.zip')) {
@@ -1320,7 +1335,7 @@
             addOutput('  whoami - show current user', 'startup-help');
             addOutput('  date - show current date', 'startup-help');
             addOutput('  echo <text> - echo text', 'startup-help');
-            addOutput('  download <programname> - download a program', 'startup-help');
+            addOutput('  bin download <programname> - download a program', 'startup-help');
             addOutput('  exit - close terminal', 'startup-help');
         }
 
@@ -1332,27 +1347,36 @@
         }
 
         function getAutocompleteSuggestion() {
-            // Check if it's a download command with program name
-            if (currentCommand.startsWith('download ')) {
-                const programName = currentCommand.substring(9).trim();
+            // Check if it's a bin download command with program name
+            if (currentCommand.startsWith('bin download ')) {
+                const programName = currentCommand.substring(13).trim();
                 // Only show suggestions if there's at least one character typed
                 if (programName.length > 0) {
                     const matches = availablePrograms.filter(prog => prog.startsWith(programName)).sort((a, b) => a.length - b.length);
                     if (matches.length > 0) {
-                        return `download ${matches[currentMatchIndex % matches.length]}`;
+                        return `bin download ${matches[currentMatchIndex % matches.length]}`;
                     }
                 }
                 return null;
             } else {
                 // Regular command autocomplete
+                if (currentCommand.length === 0) {
+                    return null; // Don't show suggestions for empty command
+                }
                 const matches = availableCommands.filter(cmd => cmd.startsWith(currentCommand));
-                return matches.length === 1 ? matches[0] : null;
+                if (matches.length === 1) {
+                    return matches[0];
+                } else if (matches.length > 1) {
+                    // If multiple matches, return the shortest one
+                    return matches.sort((a, b) => a.length - b.length)[0];
+                }
+                return null;
             }
         }
 
         function updateMatches() {
-            if (currentCommand.startsWith('download ')) {
-                const programName = currentCommand.substring(9).trim();
+            if (currentCommand.startsWith('bin download ')) {
+                const programName = currentCommand.substring(13).trim();
                 currentMatches = availablePrograms.filter(prog => prog.startsWith(programName)).sort((a, b) => a.length - b.length);
                 currentMatchIndex = 0;
             } else {
@@ -1405,10 +1429,12 @@
                         }
                     }
                     
-                    executeCommand(currentCommand);
+                    const shouldAddPrompt = executeCommand(currentCommand);
                     currentCommand = '';
                     cursorPosition = 0;
-                    addNewPrompt(); // Add new prompt after command execution
+                    if (shouldAddPrompt !== false) {
+                        addNewPrompt(); // Add new prompt after command execution
+                    }
                 }
             } else if (e.key === 'Backspace') {
                 if (cursorPosition > 0) {
@@ -1431,8 +1457,8 @@
                 e.preventDefault();
                 updateMatches();
                 
-                if (currentCommand.startsWith('download ')) {
-                    const programName = currentCommand.substring(9).trim();
+                if (currentCommand.startsWith('bin download ')) {
+                    const programName = currentCommand.substring(13).trim();
                     // Only cycle if there's at least one character typed
                     if (programName.length > 0) {
                         const matches = availablePrograms.filter(prog => prog.startsWith(programName)).sort((a, b) => a.length - b.length);
@@ -1444,7 +1470,7 @@
                             if (longerMatches.length > 0) {
                                 // Cycle through longer matches only
                                 const nextMatch = longerMatches[currentMatchIndex % longerMatches.length];
-                                currentCommand = `download ${nextMatch}`;
+                                currentCommand = `bin download ${nextMatch}`;
                                 cursorPosition = currentCommand.length;
                                 currentMatchIndex++;
                                 updateCurrentCommand();
@@ -1641,8 +1667,8 @@
                             .trim();
                         
                         contentDiv.innerHTML = `
-                            <div class="update-date">${latestDate}</div>
-                            <div class="update-content">${formattedContent}</div>
+                            <div class="deepwoken-update-date">${latestDate}</div>
+                            <div class="deepwoken-update-content">${formattedContent}</div>
                         `;
                     } else {
                         contentDiv.innerHTML = '<div class="error">Failed to load update information</div>';
@@ -1651,6 +1677,89 @@
                 .catch(err => {
                     console.error('Error loading update:', err);
                     contentDiv.innerHTML = '<div class="error">Error loading update information</div>';
+                });
+        }
+
+        function fetchDeepwokenUpdates() {
+            const url = "https://deepwoken.fandom.com/wiki/Version_History/2025";
+            const proxy = "https://api.allorigins.win/raw?url=";
+
+            fetch(proxy + encodeURIComponent(url))
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, "text/html");
+
+                    // Find h2 elements that contain dates
+                    const h2Elements = doc.querySelectorAll('h2');
+                    let latestDate = null;
+                    let latestContent = null;
+
+                    for (const h2 of h2Elements) {
+                        const bElement = h2.querySelector('b');
+                        if (bElement) {
+                            const dateText = bElement.textContent.trim();
+                            
+                            // Check if this is a date like "August 18th, 2025"
+                            if (/^[A-Za-z]+ \d{1,2}(st|nd|rd|th)?, \d{4}$/.test(dateText)) {
+                                latestDate = dateText;
+                                
+                                // Find the next sibling div with mw-collapsible class
+                                let nextSibling = h2.nextElementSibling;
+                                while (nextSibling) {
+                                    if (nextSibling.classList.contains('mw-collapsible')) {
+                                        // Get the content and remove HTML tags
+                                        latestContent = nextSibling.textContent.trim();
+                                        break;
+                                    }
+                                    nextSibling = nextSibling.nextElementSibling;
+                                }
+                                break; // Stop after finding the first (latest) date
+                            }
+                        }
+                    }
+
+                    if (latestDate && latestContent) {
+                        addOutput(`[SUCCESS] Latest update found: ${latestDate}`);
+                        addOutput('');
+                        
+                        // Replace emojis with dots, handling cases where dot already exists
+                        let formattedContent = latestContent;
+                        
+                        // First pass: handle emojis followed by dots (exclude numbers 0-9)
+                        formattedContent = formattedContent.replace(/(?![0-9])\p{Emoji}\s*\./gu, '.');
+                        
+                        // Second pass: replace remaining emojis with dots (exclude numbers 0-9)
+                        formattedContent = formattedContent.replace(/(?![0-9])\p{Emoji}/gu, '.');
+                        
+                        // Apply other formatting
+                        formattedContent = formattedContent
+                            .replace(/\n\n/g, '\n\n') // Preserve double line breaks
+                            .replace(/\n/g, '\n') // Keep single line breaks
+                            .replace(/\s+/g, ' ') // Normalize whitespace
+                            .replace(/([.!?])\s*([A-Z])/g, '$1\n\n$2') // Add line breaks before new sentences
+                            .replace(/\n\n([A-Z][^.\n]*?)\n/g, '\n\n=== $1 ===\n')
+                            .trim();
+                        
+                        // Split content into lines and output each line
+                        const lines = formattedContent.split('\n');
+                        lines.forEach(line => {
+                            if (line.trim()) {
+                                addOutput(line);
+                            }
+                        });
+                        
+                        // Add new prompt after content is displayed
+                        addNewPrompt();
+                    } else {
+                        addOutput('[ERROR] Failed to load update information');
+                        addNewPrompt();
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading update:', err);
+                    addOutput('[ERROR] Error loading update information');
+                    addNewPrompt();
                 });
         }
 
