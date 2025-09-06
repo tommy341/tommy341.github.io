@@ -572,7 +572,7 @@
                 case 'clear':
                     terminalContent.innerHTML = '';
                     commandHistory = []; // Reset command history so help shows again
-                    addNewPrompt();
+                    // Don't add prompt here - let the Enter key handler do it
                     return;
                 case 'whoami':
                     addOutput('root');
