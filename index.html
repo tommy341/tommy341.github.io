@@ -792,10 +792,9 @@
             terminal.style.display = 'block';
             terminal.focus();
             
-            // Clear terminal content and show startup help
+            // Clear terminal content and add prompt (help will show automatically via updateCurrentCommand)
             terminalContent.innerHTML = '';
             addNewPrompt();
-            showStartupHelp();
         }
 
         function openMail() {
