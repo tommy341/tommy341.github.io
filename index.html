@@ -571,6 +571,7 @@
                     break;
                 case 'clear':
                     terminalContent.innerHTML = '';
+                    commandHistory = []; // Reset command history so help shows again
                     addNewPrompt();
                     return;
                 case 'whoami':
@@ -685,7 +686,7 @@
                         addOutput(`Command not found: ${command}`);
                     }
             }
-            addNewPrompt();
+            // addNewPrompt() is now called manually in the Enter key handler
         }
 
         function addNewPrompt() {
@@ -698,29 +699,20 @@
         }
 
         function showStartupHelp() {
-            addOutput('  help - show all available commands');
-            addOutput('  ls - list programs');
-            addOutput('  clear - clear terminal');
-            addOutput('  whoami - show current user');
-            addOutput('  date - show current date');
-            addOutput('  echo <text> - echo text');
-            addOutput('  download <programname> - download a program');
-            addOutput('  exit - close terminal');
+            addOutput('  help - show all available commands', 'startup-help');
+            addOutput('  ls - list programs', 'startup-help');
+            addOutput('  clear - clear terminal', 'startup-help');
+            addOutput('  whoami - show current user', 'startup-help');
+            addOutput('  date - show current date', 'startup-help');
+            addOutput('  echo <text> - echo text', 'startup-help');
+            addOutput('  download <programname> - download a program', 'startup-help');
+            addOutput('  exit - close terminal', 'startup-help');
         }
 
         function clearStartupHelp() {
-            const helpLines = terminalContent.querySelectorAll('.output');
-            helpLines.forEach(line => {
-                if (line.textContent.includes('help - show all available commands') || 
-                    line.textContent.includes('ls - list programs') ||
-                    line.textContent.includes('clear - clear terminal') ||
-                    line.textContent.includes('whoami - show current user') ||
-                    line.textContent.includes('date - show current date') ||
-                    line.textContent.includes('echo <text> - echo text') ||
-                    line.textContent.includes('download <programname> - download a program') ||
-                    line.textContent.includes('exit - close terminal')) {
-                    line.remove();
-                }
+            const startupHelpLines = terminalContent.querySelectorAll('.startup-help');
+            startupHelpLines.forEach(line => {
+                line.remove();
             });
         }
 
@@ -772,11 +764,9 @@
                 }
             }
             
-            // Show help when prompt becomes empty
-            if (currentCommand === '') {
+            // Only show help on very first prompt (empty command and no history)
+            if (currentCommand === '' && commandHistory.length === 0) {
                 showStartupHelp();
-            } else {
-                clearStartupHelp();
             }
         }
 
@@ -803,7 +793,7 @@
                     executeCommand(currentCommand);
                     currentCommand = '';
                     cursorPosition = 0;
-                    updateCurrentCommand(); // Clear the current line
+                    addNewPrompt(); // Add new prompt after command execution
                 }
             } else if (e.key === 'Backspace') {
                 if (cursorPosition > 0) {
