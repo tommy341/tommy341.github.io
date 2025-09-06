@@ -401,11 +401,27 @@
         <div class="mail-content">
             <div class="update-list">
                 <div class="update-item">
-                    <div class="update-date">Upcoming</div>
-                    <div class="update-title">Akai4.3 Patcher Tool</div>
+                    <div class="update-date">Available Now</div>
+                    <div class="update-title">Gold Menu v1.1 Decompiled with Raw .ahk Macros</div>
                     <div class="update-content">
-                        Patches the software to remove date restrictions<br>
-                        <em>Release date: TBD (possibly next week)</em>
+                        Full decompiled source with original AutoHotkey macros<br>
+                        <em>Download: gold-menu-decompiled.zip</em>
+                    </div>
+                </div>
+                <div class="update-item">
+                    <div class="update-date">Available Now</div>
+                    <div class="update-title">Akai Macro Whole Source Decompiled</div>
+                    <div class="update-content">
+                        Complete source code including all dependencies<br>
+                        <em>Download: akai4.3-decompiled.zip</em>
+                    </div>
+                </div>
+                <div class="update-item">
+                    <div class="update-date">Available Now</div>
+                    <div class="update-title">Akai Macro Patch (Crack)</div>
+                    <div class="update-content">
+                        Patched version of Akai4.3 with date restrictions removed<br>
+                        <em>Download: akai4.3-patched.zip</em>
                     </div>
                 </div>
             </div>
@@ -440,7 +456,7 @@
         let historyIndex = -1;
         let cursorPosition = 0;
         let availableCommands = ['download', 'ls', 'clear', 'whoami', 'date', 'echo', 'exit', 'help'];
-        let availablePrograms = ['gold-menu', 'gold-menu-patcher', 'akai4.3', 'akai4.3-patched', 'gold-menu-decompiled', 'akai4.3-decompiled'];
+        let availablePrograms = ['gold-menu', 'gold-menu-patcher', 'akai4.3', 'akai4.3-patched', 'gold-menu-decompiled', 'akai4.3-decompiled', 'astralclient'];
         let currentMatches = [];
         let currentMatchIndex = 0;
         let randomAddress = Math.floor(Math.random() * (199 - 103 + 1)) + 103;
@@ -568,6 +584,7 @@
                     addOutput('  akai4.3.exe --official, leaked by: @pendant');
                     addOutput('  akai4.3-patched.zip --bypass checks');
                     addOutput('  akai4.3-decompiled.zip');
+                    addOutput('  astralclient.zip --kintama macro');
                     break;
                 case 'clear':
                     terminalContent.innerHTML = '';
@@ -593,6 +610,8 @@
                             if (programName === 'gold-menu-decompiled') {
                                 programName = programName + '.zip';
                             } else if (programName === 'akai4.3-decompiled') {
+                                programName = programName + '.zip';
+                            } else if (programName === 'astralclient') {
                                 programName = programName + '.zip';
                             } else {
                                 programName = programName + '.exe';
@@ -677,6 +696,13 @@
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
+                        } else if (programName === 'astralclient.zip') {
+                            addOutput('[INFO] Opening Astral Client website...');
+                            addOutput('[INFO] Redirecting to https://astralclient.cc...');
+                            addOutput('[SUCCESS] Website opened in new tab!');
+                            
+                            // Open the website in a new tab
+                            window.open('https://astralclient.cc', '_blank');
                         } else {
                             addOutput(`[ERROR] Program '${programName}' not found.`);
                         }
