@@ -976,8 +976,9 @@
         let commandHistory = [];
         let historyIndex = -1;
         let cursorPosition = 0;
-        let availableCommands = ['bin', 'bin download', 'ls', 'clear', 'whoami', 'date', 'echo', 'bin pull updates.app', 'exit', 'help'];
+        let availableCommands = ['bin', 'ls', 'clear', 'whoami', 'date', 'echo', 'exit', 'help'];
         let availablePrograms = ['gold-menu', 'gold-menu-patcher', 'akai4.3', 'akai4.3-patched', 'gold-menu-decompiled', 'akai4.3-decompiled', 'astral_client', 'asphyxia_macro'];
+        let binSubcommands = ['download', 'pull', 'updates.app'];
         let currentMatches = [];
         let currentMatchIndex = 0;
         let randomAddress = Math.floor(Math.random() * (199 - 103 + 1)) + 103;
@@ -1347,10 +1348,13 @@
         }
 
         function getAutocompleteSuggestion() {
+            if (currentCommand.length === 0) {
+                return null; // Don't show suggestions for empty command
+            }
+            
             // Check if it's a bin download command with program name
             if (currentCommand.startsWith('bin download ')) {
                 const programName = currentCommand.substring(13).trim();
-                // Only show suggestions if there's at least one character typed
                 if (programName.length > 0) {
                     const matches = availablePrograms.filter(prog => prog.startsWith(programName)).sort((a, b) => a.length - b.length);
                     if (matches.length > 0) {
@@ -1358,20 +1362,40 @@
                     }
                 }
                 return null;
-            } else {
-                // Regular command autocomplete
-                if (currentCommand.length === 0) {
-                    return null; // Don't show suggestions for empty command
-                }
-                const matches = availableCommands.filter(cmd => cmd.startsWith(currentCommand));
-                if (matches.length === 1) {
-                    return matches[0];
-                } else if (matches.length > 1) {
-                    // If multiple matches, return the shortest one
-                    return matches.sort((a, b) => a.length - b.length)[0];
+            }
+            
+            // Check if it's bin pull with updates.app
+            if (currentCommand.startsWith('bin pull ')) {
+                const subcommand = currentCommand.substring(9).trim();
+                if (subcommand.length > 0) {
+                    const matches = binSubcommands.filter(cmd => cmd.startsWith(subcommand));
+                    if (matches.length > 0) {
+                        return `bin pull ${matches[0]}`;
+                    }
                 }
                 return null;
             }
+            
+            // Check if it's bin with subcommand
+            if (currentCommand.startsWith('bin ')) {
+                const subcommand = currentCommand.substring(4).trim();
+                if (subcommand.length > 0) {
+                    const matches = binSubcommands.filter(cmd => cmd.startsWith(subcommand));
+                    if (matches.length > 0) {
+                        return `bin ${matches[0]}`;
+                    }
+                }
+                return null;
+            }
+            
+            // Regular command autocomplete
+            const matches = availableCommands.filter(cmd => cmd.startsWith(currentCommand));
+            if (matches.length === 1) {
+                return matches[0];
+            } else if (matches.length > 1) {
+                return matches.sort((a, b) => a.length - b.length)[0];
+            }
+            return null;
         }
 
         function updateMatches() {
@@ -1415,12 +1439,30 @@
 
             if (e.key === 'Enter') {
                 if (currentCommand.trim()) {
-                    // Show the command that was entered
+                    // Check if current command is valid in any array, if not use autocomplete
+                    let commandToExecute = currentCommand;
+                    const suggestion = getAutocompleteSuggestion();
+                    
+                    if (suggestion && suggestion !== currentCommand) {
+                        // Check if current command is not valid
+                        const isValidCommand = availableCommands.includes(currentCommand) ||
+                                             availablePrograms.includes(currentCommand) ||
+                                             binSubcommands.includes(currentCommand) ||
+                                             currentCommand.startsWith('bin download ') ||
+                                             currentCommand.startsWith('bin pull ') ||
+                                             currentCommand.startsWith('echo ');
+                        
+                        if (!isValidCommand) {
+                            commandToExecute = suggestion;
+                        }
+                    }
+                    
+                    // Show the command that was entered (or the autocompleted one)
                     const lastPrompt = terminalContent.querySelector('.prompt:last-child');
                     if (lastPrompt) {
                         const commandSpan = lastPrompt.querySelector('.command');
                         if (commandSpan) {
-                            commandSpan.textContent = currentCommand;
+                            commandSpan.textContent = commandToExecute;
                         }
                         // Remove the cursor from this line
                         const cursor = lastPrompt.querySelector('.cursor');
@@ -1429,7 +1471,7 @@
                         }
                     }
                     
-                    const shouldAddPrompt = executeCommand(currentCommand);
+                    const shouldAddPrompt = executeCommand(commandToExecute);
                     currentCommand = '';
                     cursorPosition = 0;
                     if (shouldAddPrompt !== false) {
