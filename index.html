@@ -1637,7 +1637,7 @@
                             .replace(/\n/g, '\n') // Keep single line breaks
                             .replace(/\s+/g, ' ') // Normalize whitespace
                             .replace(/([.!?])\s*([A-Z])/g, '$1\n\n$2') // Add line breaks before new sentences
-                            .replace(/\b(Content & Systems|Merges & Removals|Balancing|Bugfixes & Optimization|Hotfixes)\b/g, '\n\n=== $1 ===\n')
+                            .replace(/\n\n([A-Z][^.\n]*?)\n/g, '\n\n=== $1 ===\n')
                             .trim();
                         
                         contentDiv.innerHTML = `
