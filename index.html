@@ -652,6 +652,13 @@
                     }
                 }
             }
+            
+            // Show help when prompt becomes empty
+            if (currentCommand === '') {
+                showStartupHelp();
+            } else {
+                clearStartupHelp();
+            }
         }
 
         // Keyboard input
