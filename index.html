@@ -336,6 +336,20 @@
             font-size: 14px;
             line-height: 1.6;
         }
+
+        /* Desktop selection box */
+        .selection-box {
+            position: absolute;
+            border: 2px dashed #007AFF;
+            background: rgba(0, 122, 255, 0.1);
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
+        .desktop-icon.selected-multiple {
+            background-color: rgba(0, 123, 255, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -353,6 +367,8 @@
         <img src="discord.png" alt="Discord">
         <div class="desktop-icon-text">discord.exe</div>
     </div>
+
+    <div class="selection-box" id="selection-box"></div>
 
     <div class="terminal" id="terminal">
         <div class="terminal-header">
@@ -402,8 +418,20 @@
         let currentY;
         let initialX;
         let initialY;
-        let xOffset = 0;
-        let yOffset = 0;
+        let draggingWindow = null;
+        
+        // Separate offset tracking for each window
+        let terminalOffset = { x: 0, y: 0 };
+        let mailOffset = { x: 0, y: 0 };
+        
+        // Z-index management for window layering
+        let currentZIndex = 1000;
+
+        // Desktop selection variables
+        let isSelecting = false;
+        let selectionStartX = 0;
+        let selectionStartY = 0;
+        let selectedIcons = new Set();
 
         const terminal = document.querySelector('.terminal');
         const terminalContent = document.getElementById('terminal-content');
@@ -418,49 +446,91 @@
         let randomAddress = Math.floor(Math.random() * (199 - 103 + 1)) + 103;
 
         // Dragging functionality
-        terminal.addEventListener('mousedown', dragStart);
+        terminal.addEventListener('mousedown', (e) => dragStart(e, 'terminal'));
         document.addEventListener('mousemove', drag);
         document.addEventListener('mouseup', dragEnd);
 
         // Mail app dragging functionality
         const mailApp = document.getElementById('mail-app');
-        mailApp.addEventListener('mousedown', dragStart);
+        mailApp.addEventListener('mousedown', (e) => dragStart(e, 'mail'));
 
-        function dragStart(e) {
+        function dragStart(e, windowType) {
             if (e.target.closest('.terminal-header') || e.target.closest('.mail-header')) {
-                initialX = e.clientX - xOffset;
-                initialY = e.clientY - yOffset;
-
-                if (e.target === terminal || e.target.closest('.terminal-header') || 
-                    e.target === mailApp || e.target.closest('.mail-header')) {
-                    isDragging = true;
+                // Use the appropriate offset for the window being dragged
+                const offset = windowType === 'terminal' ? terminalOffset : mailOffset;
+                initialX = e.clientX - offset.x;
+                initialY = e.clientY - offset.y;
+                draggingWindow = windowType;
+                isDragging = true;
+                
+                // Bring the dragged window to the front
+                currentZIndex++;
+                if (windowType === 'terminal') {
+                    terminal.style.zIndex = currentZIndex;
+                } else if (windowType === 'mail') {
+                    mailApp.style.zIndex = currentZIndex;
                 }
             }
         }
 
         function drag(e) {
-            if (isDragging) {
+            if (isDragging && draggingWindow) {
                 e.preventDefault();
                 currentX = e.clientX - initialX;
                 currentY = e.clientY - initialY;
 
-                xOffset = currentX;
-                yOffset = currentY;
+                // Get window dimensions for boundary checking
+                let windowElement, windowRect;
+                if (draggingWindow === 'terminal' && terminal.style.display !== 'none') {
+                    windowElement = terminal;
+                    windowRect = terminal.getBoundingClientRect();
+                } else if (draggingWindow === 'mail' && mailApp.style.display !== 'none') {
+                    windowElement = mailApp;
+                    windowRect = mailApp.getBoundingClientRect();
+                } else {
+                    return;
+                }
 
-                // Check which window is being dragged
-                if (terminal.style.display !== 'none') {
+                // Calculate boundaries
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                const windowWidth = windowRect.width;
+                const windowHeight = windowRect.height;
+
+                // Constrain X position (only right boundary, left can go off-screen)
+                const maxX = viewportWidth - windowWidth;
+                currentX = Math.min(maxX, currentX);
+
+                // Constrain Y position (top and bottom boundaries)
+                const minY = 0;
+                const maxY = viewportHeight - windowHeight;
+                currentY = Math.max(minY, Math.min(maxY, currentY));
+
+                // Update the appropriate offset for the window being dragged
+                if (draggingWindow === 'terminal') {
+                    terminalOffset.x = currentX;
+                    terminalOffset.y = currentY;
                     terminal.style.transform = `translate(${currentX}px, ${currentY}px)`;
                 }
-                if (mailApp.style.display !== 'none') {
+                if (draggingWindow === 'mail') {
+                    mailOffset.x = currentX;
+                    mailOffset.y = currentY;
                     mailApp.style.transform = `translate(${currentX}px, ${currentY}px)`;
                 }
             }
         }
 
         function dragEnd(e) {
-            initialX = currentX;
-            initialY = currentY;
+            // Update the appropriate offset for the window being dragged
+            if (draggingWindow === 'terminal') {
+                initialX = terminalOffset.x;
+                initialY = terminalOffset.y;
+            } else if (draggingWindow === 'mail') {
+                initialX = mailOffset.x;
+                initialY = mailOffset.y;
+            }
             isDragging = false;
+            draggingWindow = null;
         }
 
         // Terminal functionality
@@ -777,20 +847,31 @@
 
         // Desktop icon functions
         function selectIcon(iconType) {
+            // If multiple icons are selected, don't change selection on single click
+            if (selectedIcons.size > 1) {
+                return;
+            }
+
             // Remove selection from all icons
             document.querySelectorAll('.desktop-icon').forEach(icon => {
-                icon.classList.remove('selected');
+                icon.classList.remove('selected', 'selected-multiple');
             });
-            
+
             // Add selection to clicked icon
             const icon = document.getElementById(iconType + '-icon');
             icon.classList.add('selected');
+            selectedIcons.clear();
+            selectedIcons.add(icon.id);
         }
 
         function openTerminal() {
             const terminal = document.getElementById('terminal');
             terminal.style.display = 'block';
             terminal.focus();
+            
+            // Bring terminal to front
+            currentZIndex++;
+            terminal.style.zIndex = currentZIndex;
             
             // Clear terminal content and add prompt (help will show automatically via updateCurrentCommand)
             terminalContent.innerHTML = '';
@@ -801,6 +882,10 @@
             const mailApp = document.getElementById('mail-app');
             mailApp.style.display = 'flex';
             mailApp.focus();
+            
+            // Bring mail app to front
+            currentZIndex++;
+            mailApp.style.zIndex = currentZIndex;
         }
 
         function closeMail() {
@@ -818,17 +903,93 @@
             terminal.style.display = 'none';
         }
 
+        // Desktop selection functionality
+        document.addEventListener('mousedown', function(e) {
+            // Only start selection if clicking on empty desktop area
+            if (e.target === document.body || e.target.classList.contains('selection-box')) {
+                isSelecting = true;
+                selectionStartX = e.clientX;
+                selectionStartY = e.clientY;
+                
+                const selectionBox = document.getElementById('selection-box');
+                selectionBox.style.left = selectionStartX + 'px';
+                selectionBox.style.top = selectionStartY + 'px';
+                selectionBox.style.width = '0px';
+                selectionBox.style.height = '0px';
+                selectionBox.style.display = 'block';
+                
+                // Clear previous selections
+                selectedIcons.clear();
+                document.querySelectorAll('.desktop-icon').forEach(icon => {
+                    icon.classList.remove('selected', 'selected-multiple');
+                });
+            }
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (isSelecting) {
+                const selectionBox = document.getElementById('selection-box');
+                const currentX = e.clientX;
+                const currentY = e.clientY;
+                
+                const left = Math.min(selectionStartX, currentX);
+                const top = Math.min(selectionStartY, currentY);
+                const width = Math.abs(currentX - selectionStartX);
+                const height = Math.abs(currentY - selectionStartY);
+                
+                selectionBox.style.left = left + 'px';
+                selectionBox.style.top = top + 'px';
+                selectionBox.style.width = width + 'px';
+                selectionBox.style.height = height + 'px';
+                
+                // Check which icons are in selection
+                document.querySelectorAll('.desktop-icon').forEach(icon => {
+                    const rect = icon.getBoundingClientRect();
+                    const iconLeft = rect.left;
+                    const iconTop = rect.top;
+                    const iconRight = rect.right;
+                    const iconBottom = rect.bottom;
+                    
+                    if (left < iconRight && left + width > iconLeft && 
+                        top < iconBottom && top + height > iconTop) {
+                        if (!selectedIcons.has(icon.id)) {
+                            selectedIcons.add(icon.id);
+                            icon.classList.add('selected-multiple');
+                        }
+                    } else {
+                        if (selectedIcons.has(icon.id)) {
+                            selectedIcons.delete(icon.id);
+                            icon.classList.remove('selected-multiple');
+                        }
+                    }
+                });
+            }
+        });
+
+        document.addEventListener('mouseup', function(e) {
+            if (isSelecting) {
+                isSelecting = false;
+                const selectionBox = document.getElementById('selection-box');
+                selectionBox.style.display = 'none';
+                
+                // Don't auto-open selected icons - user needs to click/double-click them
+            }
+        });
+
         // Click outside to deselect icons
         document.addEventListener('click', function(e) {
             const terminalIcon = document.getElementById('terminal-icon');
             const mailIcon = document.getElementById('mail-icon');
             const discordIcon = document.getElementById('discord-icon');
             const terminal = document.getElementById('terminal');
+            const mailApp = document.getElementById('mail-app');
             
-            if (!terminalIcon.contains(e.target) && !mailIcon.contains(e.target) && !discordIcon.contains(e.target) && !terminal.contains(e.target)) {
-                terminalIcon.classList.remove('selected');
-                mailIcon.classList.remove('selected');
-                discordIcon.classList.remove('selected');
+            if (!terminalIcon.contains(e.target) && !mailIcon.contains(e.target) && !discordIcon.contains(e.target) && !terminal.contains(e.target) && !mailApp.contains(e.target)) {
+                // Clear all selections
+                terminalIcon.classList.remove('selected', 'selected-multiple');
+                mailIcon.classList.remove('selected', 'selected-multiple');
+                discordIcon.classList.remove('selected', 'selected-multiple');
+                selectedIcons.clear();
             }
         });
 
