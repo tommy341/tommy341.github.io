@@ -456,7 +456,7 @@
         let historyIndex = -1;
         let cursorPosition = 0;
         let availableCommands = ['download', 'ls', 'clear', 'whoami', 'date', 'echo', 'exit', 'help'];
-        let availablePrograms = ['gold-menu', 'gold-menu-patcher', 'akai4.3', 'akai4.3-patched', 'gold-menu-decompiled', 'akai4.3-decompiled', 'astralclient'];
+        let availablePrograms = ['gold-menu', 'gold-menu-patcher', 'akai4.3', 'akai4.3-patched', 'gold-menu-decompiled', 'akai4.3-decompiled', 'astral_client', 'asphyxia_macro'];
         let currentMatches = [];
         let currentMatchIndex = 0;
         let randomAddress = Math.floor(Math.random() * (199 - 103 + 1)) + 103;
@@ -581,7 +581,8 @@
                     addOutput('  gold-menu.exe');
                     addOutput('  gold-menu-patcher.exe');
                     addOutput('  gold-menu-decompiled.zip --v1.1');
-                    addOutput('  astralclient.zip --kintama macro');
+                    addOutput('  asphyxia_macro.zip --@_desov');
+                    addOutput('  astral_client.zip --kintama macro');
                     addOutput('  akai4.3.exe --official, leaked by: @pendant');
                     addOutput('  akai4.3-patched.zip --bypass checks');
                     addOutput('  akai4.3-decompiled.zip');
@@ -611,7 +612,9 @@
                                 programName = programName + '.zip';
                             } else if (programName === 'akai4.3-decompiled') {
                                 programName = programName + '.zip';
-                            } else if (programName === 'astralclient') {
+                            } else if (programName === 'astral_client') {
+                                programName = programName + '.zip';
+                            } else if (programName === 'asphyxia_macro') {
                                 programName = programName + '.zip';
                             } else {
                                 programName = programName + '.exe';
@@ -696,13 +699,26 @@
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
-                        } else if (programName === 'astralclient.zip') {
+                        } else if (programName === 'astral_client.zip') {
                             addOutput('[INFO] Opening Astral Client website...');
                             addOutput('[INFO] Redirecting to https://astralclient.cc...');
                             addOutput('[SUCCESS] Website opened in new tab!');
                             
                             // Open the website in a new tab
                             window.open('https://astralclient.cc', '_blank');
+                        } else if (programName === 'asphyxia_macro.zip') {
+                            addOutput('[INFO] Starting download of asphyxia_macro...');
+                            addOutput('[INFO] Connecting to repository...');
+                            addOutput('[SUCCESS] Download started!');
+                            
+                            // Actually trigger the download
+                            const link = document.createElement('a');
+                            link.href = 'asphyxia_macro.zip';
+                            link.download = 'asphyxia_macro.zip';
+                            link.style.display = 'none';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
                         } else {
                             addOutput(`[ERROR] Program '${programName}' not found.`);
                         }
