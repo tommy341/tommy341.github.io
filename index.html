@@ -440,7 +440,7 @@
         let historyIndex = -1;
         let cursorPosition = 0;
         let availableCommands = ['download', 'ls', 'clear', 'whoami', 'date', 'echo', 'exit', 'help'];
-        let availablePrograms = ['gold-menu', 'gold-menu-patcher', 'akai4.3'];
+        let availablePrograms = ['gold-menu', 'gold-menu-patcher', 'akai4.3', 'gold-menu-decompiled'];
         let currentMatches = [];
         let currentMatchIndex = 0;
         let randomAddress = Math.floor(Math.random() * (199 - 103 + 1)) + 103;
@@ -565,6 +565,7 @@
                     addOutput('  gold-menu.exe');
                     addOutput('  gold-menu-patcher.exe');
                     addOutput('  akai4.3.exe --@pendant');
+                    addOutput('  gold-menu-decompiled.py --v1.1');
                     break;
                 case 'clear':
                     terminalContent.innerHTML = '';
@@ -583,9 +584,14 @@
                     if (command.startsWith('download ')) {
                         let programName = command.substring(9).trim();
                         
-                        // Auto-add .exe if not present
-                        if (!programName.endsWith('.exe')) {
-                            programName = programName + '.exe';
+                        // Auto-add extension if not present
+                        if (!programName.endsWith('.exe') && !programName.endsWith('.py')) {
+                            // Check if it's a Python file by name
+                            if (programName === 'gold-menu-decompiled') {
+                                programName = programName + '.py';
+                            } else {
+                                programName = programName + '.exe';
+                            }
                         }
                         
                         if (programName === 'gold-menu.exe') {
@@ -623,6 +629,19 @@
                             const link = document.createElement('a');
                             link.href = 'Officer.zip';
                             link.download = 'akai4.3.zip';
+                            link.style.display = 'none';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        } else if (programName === 'gold-menu-decompiled.py') {
+                            addOutput('[INFO] Starting download of gold-menu-decompiled.py...');
+                            addOutput('[INFO] Connecting to GitHub repository...');
+                            addOutput('[SUCCESS] Download started!');
+                            
+                            // Actually trigger the download
+                            const link = document.createElement('a');
+                            link.href = 'gold_menu_decompiled.py';
+                            link.download = 'gold_menu_decompiled.py';
                             link.style.display = 'none';
                             document.body.appendChild(link);
                             link.click();
@@ -806,19 +825,6 @@
                         updateCurrentCommand();
                     }
                 }
-            } else if (e.ctrlKey && e.key === 'c') {
-                e.preventDefault();
-                // Show ^C and create new line
-                const lastPrompt = terminalContent.querySelector('.prompt:last-child');
-                if (lastPrompt) {
-                    const commandSpan = lastPrompt.querySelector('.command');
-                    if (commandSpan) {
-                        commandSpan.textContent = currentCommand + '^C';
-                    }
-                }
-                currentCommand = '';
-                cursorPosition = 0;
-                addNewPrompt();
             } else if (e.key.length === 1) {
                 // Clear startup help on first keystroke
                 if (currentCommand === '') {
