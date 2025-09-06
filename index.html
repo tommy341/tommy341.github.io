@@ -581,10 +581,10 @@
                     addOutput('  gold-menu.exe');
                     addOutput('  gold-menu-patcher.exe');
                     addOutput('  gold-menu-decompiled.zip --v1.1');
+                    addOutput('  astralclient.zip --kintama macro');
                     addOutput('  akai4.3.exe --official, leaked by: @pendant');
                     addOutput('  akai4.3-patched.zip --bypass checks');
                     addOutput('  akai4.3-decompiled.zip');
-                    addOutput('  astralclient.zip --kintama macro');
                     break;
                 case 'clear':
                     terminalContent.innerHTML = '';
@@ -925,9 +925,10 @@
             currentZIndex++;
             terminal.style.zIndex = currentZIndex;
             
-            // Clear terminal content and add prompt (help will show automatically via updateCurrentCommand)
-            terminalContent.innerHTML = '';
-            addNewPrompt();
+            // Only add prompt if terminal is empty (first time opening)
+            if (terminalContent.children.length === 0) {
+                addNewPrompt();
+            }
         }
 
         function openMail() {
