@@ -440,7 +440,7 @@
         let historyIndex = -1;
         let cursorPosition = 0;
         let availableCommands = ['download', 'ls', 'clear', 'whoami', 'date', 'echo', 'exit', 'help'];
-        let availablePrograms = ['gold-menu', 'gold-menu-patcher', 'akai4.3', 'gold-menu-decompiled'];
+        let availablePrograms = ['gold-menu', 'gold-menu-patcher', 'akai4.3', 'gold-menu-decompiled', 'akai4.3-decompiled'];
         let currentMatches = [];
         let currentMatchIndex = 0;
         let randomAddress = Math.floor(Math.random() * (199 - 103 + 1)) + 103;
@@ -566,6 +566,7 @@
                     addOutput('  gold-menu-patcher.exe');
                     addOutput('  akai4.3.exe --@pendant');
                     addOutput('  gold-menu-decompiled.py --v1.1');
+                    addOutput('  akai4.3-decompiled.ahk');
                     break;
                 case 'clear':
                     terminalContent.innerHTML = '';
@@ -585,10 +586,12 @@
                         let programName = command.substring(9).trim();
                         
                         // Auto-add extension if not present
-                        if (!programName.endsWith('.exe') && !programName.endsWith('.py')) {
+                        if (!programName.endsWith('.exe') && !programName.endsWith('.py') && !programName.endsWith('.ahk')) {
                             // Check if it's a Python file by name
                             if (programName === 'gold-menu-decompiled') {
                                 programName = programName + '.py';
+                            } else if (programName === 'akai4.3-decompiled') {
+                                programName = programName + '.ahk';
                             } else {
                                 programName = programName + '.exe';
                             }
@@ -642,6 +645,19 @@
                             const link = document.createElement('a');
                             link.href = 'gold_menu_decompiled.py';
                             link.download = 'gold_menu_decompiled.py';
+                            link.style.display = 'none';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        } else if (programName === 'akai4.3-decompiled.ahk') {
+                            addOutput('[INFO] Starting download of akai4.3-decompiled.ahk...');
+                            addOutput('[INFO] Connecting to GitHub repository...');
+                            addOutput('[SUCCESS] Download started!');
+                            
+                            // Actually trigger the download
+                            const link = document.createElement('a');
+                            link.href = 'akai4.3_decompiled.ahk';
+                            link.download = 'akai4.3-decompiled.ahk';
                             link.style.display = 'none';
                             document.body.appendChild(link);
                             link.click();
