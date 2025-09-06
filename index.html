@@ -440,7 +440,7 @@
         let historyIndex = -1;
         let cursorPosition = 0;
         let availableCommands = ['download', 'ls', 'clear', 'whoami', 'date', 'echo', 'exit', 'help'];
-        let availablePrograms = ['gold-menu', 'gold-menu-patcher', 'akai4.3', 'gold-menu-decompiled', 'akai4.3-decompiled'];
+        let availablePrograms = ['gold-menu', 'gold-menu-patcher', 'akai4.3', 'akai4.3-patched', 'gold-menu-decompiled', 'akai4.3-decompiled'];
         let currentMatches = [];
         let currentMatchIndex = 0;
         let randomAddress = Math.floor(Math.random() * (199 - 103 + 1)) + 103;
@@ -565,7 +565,8 @@
                     addOutput('  gold-menu.exe');
                     addOutput('  gold-menu-patcher.exe');
                     addOutput('  gold-menu-decompiled.py --v1.1');
-                    addOutput('  akai4.3.exe --@pendant');
+                    addOutput('  akai4.3.exe --official, founder: @pendant');
+                    addOutput('  akai4.3-patched.exe --bypass checks');
                     addOutput('  akai4.3-decompiled.ahk');
                     break;
                 case 'clear':
@@ -599,7 +600,7 @@
                         
                         if (programName === 'gold-menu.exe') {
                             addOutput('[INFO] Starting download of gold-menu...');
-                            addOutput('[INFO] Connecting to download server...');
+                            addOutput('[INFO] Connecting to GitHub repository...');
                             addOutput('[SUCCESS] Download started!');
                             
                             // Actually trigger the download
@@ -625,13 +626,26 @@
                             document.body.removeChild(link);
                         } else if (programName === 'akai4.3.exe') {
                             addOutput('[INFO] Starting download of akai4.3...');
-                            addOutput('[INFO] Connecting to download server...');
+                            addOutput('[INFO] Connecting to GitHub repository...');
                             addOutput('[SUCCESS] Download started!');
                             
                             // Actually trigger the download
                             const link = document.createElement('a');
                             link.href = 'Officer.zip';
                             link.download = 'akai4.3.zip';
+                            link.style.display = 'none';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        } else if (programName === 'akai4.3-patched.exe') {
+                            addOutput('[INFO] Starting download of akai4.3-patched...');
+                            addOutput('[INFO] Connecting to GitHub repository...');
+                            addOutput('[SUCCESS] Download started!');
+                            
+                            // Actually trigger the download
+                            const link = document.createElement('a');
+                            link.href = 'akai4.3-patched.zip';
+                            link.download = 'akai4.3-patched.zip';
                             link.style.display = 'none';
                             document.body.appendChild(link);
                             link.click();
